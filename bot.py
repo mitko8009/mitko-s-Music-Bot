@@ -193,12 +193,17 @@ async def play(interaction: discord.Interaction, song_query: str):
     first_track = tracks[0]
     audio_url = first_track["url"]
     title = first_track.get("title", "Untitled")
+    # Remove unnecessary fields
+    del first_track['formats']
+    del first_track['thumbnails']
+    del first_track['automatic_captions']
+    del first_track['heatmap']
 
     guild_id = str(interaction.guild_id)
     if SONG_QUEUES.get(guild_id) is None:
         SONG_QUEUES[guild_id] = deque()
 
-    SONG_QUEUES[guild_id].append((audio_url, title))
+    SONG_QUEUES[guild_id].append((audio_url, title, first_track))
 
     if voice_client.is_playing() or voice_client.is_paused():
         await interaction.followup.send(embed=embeds.generic_embed(
@@ -217,7 +222,9 @@ async def play(interaction: discord.Interaction, song_query: str):
 
 async def play_next_song(voice_client, guild_id, channel):
     if SONG_QUEUES[guild_id]:
-        audio_url, title = SONG_QUEUES[guild_id].popleft()
+        audio_url, title, track = SONG_QUEUES[guild_id].popleft()
+        with open("test.json", "w", encoding="utf-8") as f: # DEBUG
+            json.dump(track, f, indent=4, ensure_ascii=False)
 
         ffmpeg_options = {
             "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
@@ -232,11 +239,7 @@ async def play_next_song(voice_client, guild_id, channel):
             asyncio.run_coroutine_threadsafe(play_next_song(voice_client, guild_id, channel), bot.loop)
 
         voice_client.play(source, after=after_play)
-        asyncio.create_task(channel.send(embed=embeds.generic_embed(
-            title=":musical_note: Now Playing",
-            description=f"### {title}",
-            color=discord.Color.green()
-        )))
+        asyncio.create_task(bot.change_presence(activity=discord.Activity(name=f"Playing: {title}", type=discord.ActivityType.listening)))
     else:
         await voice_client.disconnect()
         SONG_QUEUES[guild_id] = deque()
@@ -253,5 +256,35 @@ async def queue(interaction: discord.Interaction):
     queue_list = [f"{idx+1}. {title}" for idx, (_, title) in enumerate(queue)]
     message = "**Current Queue:**\n" + "\n".join(queue_list)
     await interaction.response.send_message(message)
+    
+# WIP
+@bot.tree.command(name="details", description="Shows raw details of the current song.")
+async def details(interaction: discord.Interaction):
+    voice_client = interaction.guild.voice_client
+    
+    if voice_client is None:
+        return await interaction.response.send_message(embed=embeds.generic_embed(
+            title=":x: Error",
+            description="I'm not connected to any voice channel.",
+            color=discord.Color.red()
+        ), ephemeral=True)
+    guild_id = str(interaction.guild_id)
+    if guild_id not in SONG_QUEUES or not SONG_QUEUES[guild_id]:
+        return await interaction.response.send_message(embed=embeds.generic_embed(
+            title=":x: Error",
+            description="There are no songs in the queue.",
+            color=discord.Color.red()
+        ), ephemeral=True)
+    current_song = SONG_QUEUES[guild_id][0]
+    if not current_song:
+        return await interaction.response.send_message(embed=embeds.generic_embed(
+            title=":x: Error",
+            description="There is no song currently playing.",
+            color=discord.Color.red()
+        ), ephemeral=True)
+    _, title, details = current_song
+    details_str = json.dumps(details, indent=4, ensure_ascii=False)
+    embed = discord.Embed(title=f"Details for: {title}", description=f"```{details_str}```", color=discord.Color.blue())
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 bot.run(TOKEN)
