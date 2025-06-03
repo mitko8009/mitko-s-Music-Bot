@@ -1,4 +1,21 @@
 {
     "default_footer": "Pishki s oriz",
-    "delete_delay": 3
+    "delete_delay": 3,
+    "console_commands": {
+        "help": {
+            "alias": ["help", "h"]
+        },
+        "exit": {
+            "alias": ["exit", "quit", "q"]
+        },
+        "test": {
+            "alias": ["test"]
+        },
+        "restart": {
+            "alias": ["restart", "res"]
+        }
+    },
+    "datefmt": "%Y-%m-%d %H:%M:%S",
+    "log_file_size_mb": 5,
+    "log_backup_count": 5
 }
