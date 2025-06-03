@@ -8,6 +8,7 @@ import yt_dlp
 from collections import deque
 import asyncio
 import logging
+import datetime
 import json
 
 import embeds
@@ -206,16 +207,18 @@ async def play(interaction: discord.Interaction, song_query: str):
     SONG_QUEUES[guild_id].append((audio_url, title, first_track))
 
     if voice_client.is_playing() or voice_client.is_paused():
-        await interaction.followup.send(embed=embeds.generic_embed(
-            title=":musical_note: Added to Queue",
-            description=f"**{title}** has been added to the queue.",
-            color=discord.Color.blue()
+        await interaction.followup.send(embed=embeds.song_embed(
+            title=f":musical_note: {title}",
+            description="**Added to queue.**",
+            color=discord.Color.blue(),
+            thumbnail_url=first_track.get("thumbnail")
         ), ephemeral=True)
     else:
-        await interaction.followup.send(embed=embeds.generic_embed(
-            title=":musical_note: Now Playing",
-            description=f"### {title}",
-            color=discord.Color.green()
+        await interaction.followup.send(embed=embeds.song_embed(
+            title=f":musical_note: {title}",
+            description=f"**Now playing.**\nDuration: {datetime.timedelta(seconds=first_track.get("duration", 0))}",
+            color=discord.Color.green(),
+            thumbnail_url=first_track.get("thumbnail")
         ), ephemeral=True)
         await play_next_song(voice_client, guild_id, interaction.channel)
 
@@ -258,33 +261,33 @@ async def queue(interaction: discord.Interaction):
     await interaction.response.send_message(message)
     
 # WIP
-@bot.tree.command(name="details", description="Shows raw details of the current song.")
-async def details(interaction: discord.Interaction):
-    voice_client = interaction.guild.voice_client
+# @bot.tree.command(name="details", description="Shows raw details of the current song.")
+# async def details(interaction: discord.Interaction):
+#     voice_client = interaction.guild.voice_client
     
-    if voice_client is None:
-        return await interaction.response.send_message(embed=embeds.generic_embed(
-            title=":x: Error",
-            description="I'm not connected to any voice channel.",
-            color=discord.Color.red()
-        ), ephemeral=True)
-    guild_id = str(interaction.guild_id)
-    if guild_id not in SONG_QUEUES or not SONG_QUEUES[guild_id]:
-        return await interaction.response.send_message(embed=embeds.generic_embed(
-            title=":x: Error",
-            description="There are no songs in the queue.",
-            color=discord.Color.red()
-        ), ephemeral=True)
-    current_song = SONG_QUEUES[guild_id][0]
-    if not current_song:
-        return await interaction.response.send_message(embed=embeds.generic_embed(
-            title=":x: Error",
-            description="There is no song currently playing.",
-            color=discord.Color.red()
-        ), ephemeral=True)
-    _, title, details = current_song
-    details_str = json.dumps(details, indent=4, ensure_ascii=False)
-    embed = discord.Embed(title=f"Details for: {title}", description=f"```{details_str}```", color=discord.Color.blue())
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+#     if voice_client is None:
+#         return await interaction.response.send_message(embed=embeds.generic_embed(
+#             title=":x: Error",
+#             description="I'm not connected to any voice channel.",
+#             color=discord.Color.red()
+#         ), ephemeral=True)
+#     guild_id = str(interaction.guild_id)
+#     if guild_id not in SONG_QUEUES or not SONG_QUEUES[guild_id]:
+#         return await interaction.response.send_message(embed=embeds.generic_embed(
+#             title=":x: Error",
+#             description="There are no songs in the queue.",
+#             color=discord.Color.red()
+#         ), ephemeral=True)
+#     current_song = SONG_QUEUES[guild_id][0]
+#     if not current_song:
+#         return await interaction.response.send_message(embed=embeds.generic_embed(
+#             title=":x: Error",
+#             description="There is no song currently playing.",
+#             color=discord.Color.red()
+#         ), ephemeral=True)
+#     _, title, details = current_song
+#     details_str = json.dumps(details, indent=4, ensure_ascii=False)
+#     embed = discord.Embed(title=f"Details for: {title}", description=f"```{details_str}```", color=discord.Color.blue())
+#     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 bot.run(TOKEN)
