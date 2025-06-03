@@ -87,7 +87,6 @@ class MainWindow(QtWidgets.QWidget):
         self.init_ui()
 
     def init_ui(self):
-        # uic.loadUi("ui/main.ui", self)
         self.setWindowTitle("Music Bot Control")
         self.setGeometry(100, 100, 300, 100)
         self.button = QtWidgets.QPushButton("Stop Bot", self)
@@ -100,10 +99,14 @@ class MainWindow(QtWidgets.QWidget):
         self.app_logic.stop_bot()
         QtWidgets.QMessageBox.information(self, "Info", "Stop command sent to bot.")
 
-if __name__ == "__main__":
-    app_logic = MusicBotApp()
+def run_window(app_logic):
     qt_app = QtWidgets.QApplication(sys.argv)
     window = MainWindow(app_logic)
     window.show()
-    threading.Thread(target=app_logic.run, daemon=True).start()
-    sys.exit(qt_app.exec_())
+    qt_app.exec_()
+
+if __name__ == "__main__":
+    app_logic = MusicBotApp()
+    window_thread = threading.Thread(target=run_window, args=(app_logic,), daemon=True)
+    window_thread.start()
+    app_logic.run()
