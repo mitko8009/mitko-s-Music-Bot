@@ -18,4 +18,3 @@ def song_embed(title=None, description=None, thumbnail_url=None, color=discord.C
     embed.set_footer(text=footer and footer or config['default_footer'])
     
     return embed
-        

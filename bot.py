@@ -290,4 +290,5 @@ async def queue(interaction: discord.Interaction):
 #     embed = discord.Embed(title=f"Details for: {title}", description=f"```{details_str}```", color=discord.Color.blue())
 #     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-bot.run(TOKEN)
+def run_bot():
+    bot.run(TOKEN)
