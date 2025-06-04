@@ -39,12 +39,16 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 logger = logging.getLogger("discord")
 
+is_ready = False
+
 @bot.event
 async def on_ready():
+    global is_ready
+    
     await bot.tree.sync()
     logger.info(f"Logged in as {bot.user} (ID: {bot.user.id})")
     logger.info("Bot is ready!")
-    setattr(bot, 'is_starting', True)
+    is_ready = True
 
 @bot.tree.command(name="skip", description="Skips the current playing song")
 async def skip(interaction: discord.Interaction):
