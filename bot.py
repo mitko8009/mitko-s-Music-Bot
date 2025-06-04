@@ -44,7 +44,7 @@ is_ready = False
 @bot.event
 async def on_ready():
     global is_ready
-    
+
     await bot.tree.sync()
     logger.info(f"Logged in as {bot.user} (ID: {bot.user.id})")
     logger.info("Bot is ready!")

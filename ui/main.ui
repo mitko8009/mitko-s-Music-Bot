@@ -34,11 +34,13 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLabel" name="label_stats">
+        <widget class="QLabel" name="label_bot_details">
          <property name="font">
           <font>
            <family>Consolas</family>
-           <pointsize>9</pointsize>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
           </font>
          </property>
          <property name="text">
@@ -60,6 +62,9 @@
           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
+       </item>
+       <item>
+        <widget class="QTableWidget" name="table_activity"/>
        </item>
        <item>
         <widget class="QPushButton" name="stop_btn">
@@ -104,6 +109,8 @@
     <property name="title">
      <string>Manage</string>
     </property>
+    <addaction name="actionEnable_Debug"/>
+    <addaction name="separator"/>
     <addaction name="actionShutdown"/>
    </widget>
    <addaction name="menuManage"/>
@@ -116,6 +123,22 @@
     <font>
      <family>Consolas</family>
     </font>
+   </property>
+  </action>
+  <action name="actionEnable_Debug">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Enable Debug</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>Restart GUI</string>
    </property>
   </action>
  </widget>
