@@ -52,11 +52,11 @@ class MusicBotApp:
             },
             secondary_log_colors={
                 "asctime": {
-                    "DEBUG": "thin_white",
-                    "INFO": "thin_white",
-                    "WARNING": "thin_white",
-                    "ERROR": "thin_white",
-                    "CRITICAL": "thin_white",
+                    "DEBUG": self.conf['logging']['asctime_log_color'],
+                    "INFO": self.conf['logging']['asctime_log_color'],
+                    "WARNING": self.conf['logging']['asctime_log_color'],
+                    "ERROR": self.conf['logging']['asctime_log_color'],
+                    "CRITICAL": self.conf['logging']['asctime_log_color'],
                 },
                 "name": {
                     'DEBUG': 'green',
@@ -109,7 +109,7 @@ class MusicBotApp:
         except KeyboardInterrupt:
             self.logger.info("Console interrupted by user.")
 
-    def run(self):
+    def run(self) -> None:
         self.console_thread = threading.Thread(target=self.console, name="ConsoleThread", daemon=True)
         self.console_thread.start()
         try:
@@ -124,19 +124,32 @@ class MusicBotApp:
             gc.collect()
             self.logger.info("Event loop closed.")
 
+    
+    def check_bot_status(self) -> int:
+        if not getattr(bot.bot, 'is_starting', False): return 2
+        elif bot.bot.is_closed(): return 0
+        else: return 1
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, app_logic):
         super().__init__()
         self.app_logic = app_logic
-        self.init_ui()
-
-    def init_ui(self):
+        
         uic.loadUi("ui/main.ui", self)
-        self.button.clicked.connect(self.on_stop)
+
+        self.functionality()
+
+    def functionality(self):
+        self.stop_btn.clicked.connect(self.on_stop)
 
     def on_stop(self):
-        self.app_logic.stop_bot()
-        QtWidgets.QMessageBox.information(self, "Info", "Stop command sent to bot.")
+        if self.app_logic.check_bot_status() != 1:
+            self.app_logic.logger.warning("Bot is not running. No action taken.")
+            return
+        
+        if QtWidgets.QMessageBox.question(self, "Confirm Stop", "Are you sure you want to stop the bot?"):
+            self.app_logic.stop_bot()
+            QtWidgets.QMessageBox.information(self, "Info", "Stop command sent to bot.")
 
 def run_window(app_logic):
     qt_app = QtWidgets.QApplication(sys.argv)

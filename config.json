@@ -19,7 +19,8 @@
         "file": "leatest.log",
         "datefmt": "%Y-%m-%d %H:%M:%S",
         "file_size_mb": 5,
-        "backup_count": 5
+        "backup_count": 5,
+        "asctime_log_color": "thin_white"
     },
     "debug": false
 }

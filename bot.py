@@ -44,6 +44,7 @@ async def on_ready():
     await bot.tree.sync()
     logger.info(f"Logged in as {bot.user} (ID: {bot.user.id})")
     logger.info("Bot is ready!")
+    setattr(bot, 'is_starting', True)
 
 @bot.tree.command(name="skip", description="Skips the current playing song")
 async def skip(interaction: discord.Interaction):
