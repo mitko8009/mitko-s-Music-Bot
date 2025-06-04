@@ -15,7 +15,11 @@
             "alias": ["restart", "res"]
         }
     },
-    "datefmt": "%Y-%m-%d %H:%M:%S",
-    "log_file_size_mb": 5,
-    "log_backup_count": 5
+    "logging": {
+        "file": "leatest.log",
+        "datefmt": "%Y-%m-%d %H:%M:%S",
+        "file_size_mb": 5,
+        "backup_count": 5
+    },
+    "debug": false
 }

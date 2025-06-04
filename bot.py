@@ -37,13 +37,13 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("discord")
 
 @bot.event
 async def on_ready():
     await bot.tree.sync()
-    print(f"Online!\n{bot.user} | {bot.user.id}") 
-
+    logger.info(f"Logged in as {bot.user} (ID: {bot.user.id})")
+    logger.info("Bot is ready!")
 
 @bot.tree.command(name="skip", description="Skips the current playing song")
 async def skip(interaction: discord.Interaction):
