@@ -170,15 +170,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Activity Table
         HeaderLabels = ["Guild Name", "Status"]
-        self.table_activity.setColumnCount(HeaderLabels.__len__())
+        self.table_activity.setColumnCount(len(HeaderLabels))
         self.table_activity.setHorizontalHeaderLabels(HeaderLabels)
         self.refresh_activity_table()
+
+        # Refresh activity table
+        self.activity_timer = QtCore.QTimer(self)
+        self.activity_timer.timeout.connect(self.refresh_activity_table)
+        self.activity_timer.start(3000)
 
         # Add right-click context menu
         self.table_activity.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.table_activity.customContextMenuRequested.connect(self.show_activity_context_menu)
 
     def refresh_activity_table(self):
+        self.label_status.setText(self.app_logic.check_bot_status().upper())
+        if self.app_logic.check_bot_status() == 'online': self.label_status.setStyleSheet("color: green;")
+        else: self.label_status.setStyleSheet("color: red;")
+        
         self.table_activity.setRowCount(0)
         for guild in bot.bot.guilds:
             row = self.table_activity.rowCount()
