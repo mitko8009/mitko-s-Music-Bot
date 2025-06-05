@@ -198,19 +198,15 @@ async def play(interaction: discord.Interaction, song_query: str):
         return
 
     first_track = tracks[0]
-    audio_url = first_track["url"]
-    title = first_track.get("title", "Untitled")
     # Remove unnecessary fields
-    del first_track['formats']
-    del first_track['thumbnails']
-    del first_track['automatic_captions']
-    del first_track['heatmap']
+    for key in ['formats', 'thumbnails', 'automatic_captions', 'heatmap']:
+        first_track.pop(key, None)
 
     guild_id = str(interaction.guild_id)
     if SONG_QUEUES.get(guild_id) is None:
         SONG_QUEUES[guild_id] = deque()
 
-    SONG_QUEUES[guild_id].append((audio_url, title, first_track))
+    SONG_QUEUES[guild_id].append(first_track)
 
     if voice_client.is_playing() or voice_client.is_paused():
         await interaction.followup.send(embed=embeds.song_embed(
@@ -231,9 +227,12 @@ async def play(interaction: discord.Interaction, song_query: str):
 
 async def play_next_song(voice_client, guild_id, channel):
     if SONG_QUEUES[guild_id]:
-        audio_url, title, track = SONG_QUEUES[guild_id].popleft()
+        track = SONG_QUEUES[guild_id].popleft()
         with open("test.json", "w", encoding="utf-8") as f: # DEBUG
             json.dump(track, f, indent=4, ensure_ascii=False)
+
+        audio_url = track["url"]
+        title = track.get("title", "Untitled")
 
         ffmpeg_options = {
             "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
@@ -263,7 +262,7 @@ async def queue(interaction: discord.Interaction):
         await interaction.response.send_message("The queue is empty.")
         return
 
-    queue_list = [f"{idx+1}. {title}" for idx, (_, title) in enumerate(queue)]
+    queue_list = [f"{idx+1}. {track.get('title', 'Untitled')}" for idx, track in enumerate(queue)]
     message = "**Current Queue:**\n" + "\n".join(queue_list)
     await interaction.response.send_message(message)
     
