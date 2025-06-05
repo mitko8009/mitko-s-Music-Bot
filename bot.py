@@ -18,6 +18,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 conf = json.loads(open("config.json", "r").read())
 
 SONG_QUEUES = {}
+CURRENT_SONG = {}
 
 async def search_ytdlp_async(query, ydl_opts):
     loop = asyncio.get_running_loop()
@@ -248,6 +249,7 @@ async def play_next_song(voice_client, guild_id, channel):
 
         voice_client.play(source, after=after_play)
         asyncio.create_task(bot.change_presence(activity=discord.Activity(name=f"Playing: {title}", type=discord.ActivityType.listening)))
+        CURRENT_SONG[guild_id] = (audio_url, title, track)
     else:
         await voice_client.disconnect()
         SONG_QUEUES[guild_id] = deque()

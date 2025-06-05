@@ -156,6 +156,8 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__()
         self.app_logic = app_logic
 
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+
         uic.loadUi("ui/main.ui", self)
         self.functionality()
 
@@ -171,7 +173,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.label_bot_details.setText(f"Logged in as {bot.bot.user} (ID: {bot.bot.user.id})")
 
         # Activity Table
-        HeaderLabels = ["Guild Name", "Status"]
+        HeaderLabels = ["Guild Name", "Status", "Now Playing"]
         self.table_activity.setColumnCount(len(HeaderLabels))
         self.table_activity.setHorizontalHeaderLabels(HeaderLabels)
         self.refresh_activity_table()
@@ -209,6 +211,26 @@ class MainWindow(QtWidgets.QMainWindow):
             status_item = QtWidgets.QTableWidgetItem(status_text)
             status_item.setFlags(status_item.flags() & ~QtCore.Qt.ItemIsEditable)
             self.table_activity.setItem(row, 1, status_item)
+
+            # Now Playing
+            current_song = bot.CURRENT_SONG.get(str(guild.id))
+            if status_text == "Inactive":
+                song_text = "None"
+            elif current_song:
+                _, title, track = current_song
+                duration = track.get("duration") if isinstance(track, dict) else None
+                if duration:
+                    mins, secs = divmod(duration, 60)
+                    duration_str = f"{int(mins):02d}:{int(secs):02d}"
+                else:
+                    duration_str = "Unknown"
+                song_text = f"{title} ({duration_str})"
+            else:
+                song_text = "None"
+
+            now_playing_item = QtWidgets.QTableWidgetItem(song_text)
+            now_playing_item.setFlags(now_playing_item.flags() & ~QtCore.Qt.ItemIsEditable)
+            self.table_activity.setItem(row, 2, now_playing_item)
 
     def show_activity_context_menu(self, pos):
         menu = QtWidgets.QMenu(self)
