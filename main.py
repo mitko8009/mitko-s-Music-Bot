@@ -95,7 +95,7 @@ class MusicBotApp:
     def console(self):
         try:
             while True:
-                cmd = input("").strip()
+                cmd = input("").strip().lower()
                 if cmd == "stop":
                     self.stop_bot()
                     break
@@ -160,6 +160,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.functionality()
 
     def functionality(self):
+        self.setWindowTitle(f"Discord Bot Control Panel - {bot.bot.user.name}")
+
         self.is_debug = self.app_logic.conf['debug']
 
         self.stop_btn.clicked.connect(self.on_stop)
