@@ -215,6 +215,7 @@ class MainWindow(QtWidgets.QMainWindow):
         action_refresh = menu.addAction("Refresh Table Info")
         menu.addSeparator()
         action_copy_id = menu.addAction("Copy Guild ID")
+        action_skip_song = menu.addAction("Skip Song")
         action_disconnect = menu.addAction("Disconnect from Guild")
         action = menu.exec_(self.table_activity.viewport().mapToGlobal(pos))
 
@@ -247,6 +248,24 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.app_logic.logger.info(f"Disconnect command sent for guild: {guild.name}")
                 else:
                     self.app_logic.logger.warning(f"Bot is not connected to a voice channel in guild: {guild.name}")
+
+        # Skip song in the selected guild
+        elif action == action_skip_song:
+            row = self.table_activity.currentRow()
+            if row >= 0 and row < len(bot.bot.guilds):
+                guild = bot.bot.guilds[row]
+                def skip():
+                    fut = asyncio.run_coroutine_threadsafe(
+                        bot.skip_song(guild.id), self.app_logic.loop
+                    )
+                    try:
+                        fut.result(timeout=5)
+                        self.app_logic.logger.info(f"Skip command sent for guild: {guild.name}")
+                    except Exception as e:
+                        self.app_logic.logger.error(f"Failed to skip song in {guild.name}: {e}")
+                threading.Thread(target=skip, daemon=True).start()
+            else:
+                self.app_logic.logger.warning("No guild selected to skip song.")
         
     def update_stats(self):
         if self.app_logic.check_bot_status() != 'online': return

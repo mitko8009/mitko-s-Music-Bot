@@ -295,6 +295,12 @@ async def queue(interaction: discord.Interaction):
 #     embed = discord.Embed(title=f"Details for: {title}", description=f"```{details_str}```", color=discord.Color.blue())
 #     await interaction.response.send_message(embed=embed, ephemeral=True)
 
+# GUI Utils
+async def skip_song(guild_id: int):
+    voice_client = discord.utils.find(lambda vc: vc.guild.id == guild_id, bot.voice_clients)
+    if voice_client and (voice_client.is_playing() or voice_client.is_paused()):
+        voice_client.stop()
+
 async def run_bot(loop):
     asyncio.set_event_loop(loop)
     await bot.start(TOKEN)

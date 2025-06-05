@@ -1,20 +1,6 @@
 {
     "default_footer": "Pishki s oriz",
     "delete_delay": 3,
-    "console_commands": {
-        "help": {
-            "alias": ["help", "h"]
-        },
-        "exit": {
-            "alias": ["exit", "quit", "q"]
-        },
-        "test": {
-            "alias": ["test"]
-        },
-        "restart": {
-            "alias": ["restart", "res"]
-        }
-    },
     "logging": {
         "file": "leatest.log",
         "datefmt": "%Y-%m-%d %H:%M:%S",
