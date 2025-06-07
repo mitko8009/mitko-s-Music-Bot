@@ -208,6 +208,7 @@ async def play(interaction: discord.Interaction, song_query: str):
 
     SONG_QUEUES[guild_id].append(first_track)
 
+    title = first_track.get("title", "Untitled")
     if voice_client.is_playing() or voice_client.is_paused():
         await interaction.followup.send(embed=embeds.song_embed(
             title=f":musical_note: {title}",
@@ -218,7 +219,7 @@ async def play(interaction: discord.Interaction, song_query: str):
     else:
         await interaction.followup.send(embed=embeds.song_embed(
             title=f":musical_note: {title}",
-            description=f"**Now playing.**\nDuration: {datetime.timedelta(seconds=first_track.get("duration", 0))}",
+            description=f"**Now playing.**\nDuration: {datetime.timedelta(seconds=first_track.get('duration', 0))}",
             color=discord.Color.green(),
             thumbnail_url=first_track.get("thumbnail")
         ), ephemeral=True)
@@ -301,6 +302,25 @@ async def skip_song(guild_id: int):
     voice_client = discord.utils.find(lambda vc: vc.guild.id == guild_id, bot.voice_clients)
     if voice_client and (voice_client.is_playing() or voice_client.is_paused()):
         voice_client.stop()
+        
+async def pause_song(guild_id: int):
+    voice_client = discord.utils.find(lambda vc: vc.guild.id == guild_id, bot.voice_clients)
+    if voice_client and voice_client.is_playing():
+        voice_client.pause()
+        
+async def resume_song(guild_id: int):
+    voice_client = discord.utils.find(lambda vc: vc.guild.id == guild_id, bot.voice_clients)
+    if voice_client and voice_client.is_paused():
+        voice_client.resume()
+        
+async def song_status(guild_id: int):
+    voice_client = discord.utils.find(lambda vc: vc.guild.id == guild_id, bot.voice_clients)
+    if voice_client:
+        if voice_client.is_playing():
+            return "Playing"
+        elif voice_client.is_paused():
+            return "Paused"
+    return "Stopped"
 
 async def run_bot(loop):
     asyncio.set_event_loop(loop)

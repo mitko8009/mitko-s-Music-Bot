@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>428</height>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -64,33 +64,49 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_status">
-         <property name="font">
-          <font>
-           <family>Consolas</family>
-           <pointsize>9</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="topMargin">
+          <number>0</number>
          </property>
-         <property name="text">
-          <string>BOT STATUS</string>
-         </property>
-        </widget>
+         <item>
+          <widget class="QLabel" name="label_status">
+           <property name="font">
+            <font>
+             <family>Consolas</family>
+             <pointsize>9</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>BOT STATUS</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QTableWidget" name="table_activity">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="styleSheet">
           <string notr="true"/>
          </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
+         <property name="autoScroll">
+          <bool>false</bool>
+         </property>
          <property name="showDropIndicator" stdset="0">
           <bool>false</bool>
          </property>
          <property name="dragDropOverwriteMode">
           <bool>false</bool>
+         </property>
+         <property name="textElideMode">
+          <enum>Qt::ElideLeft</enum>
          </property>
         </widget>
        </item>
@@ -120,7 +136,7 @@
      <x>0</x>
      <y>0</y>
      <width>640</width>
-     <height>24</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="font">

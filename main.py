@@ -186,11 +186,17 @@ class MainWindow(QtWidgets.QMainWindow):
         # Add right-click context menu
         self.table_activity.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.table_activity.customContextMenuRequested.connect(self.show_activity_context_menu)
+        self.table_activity.clicked.connect(lambda _: self.refresh_activity_table())
 
     def refresh_activity_table(self):
+        # Save current selection
+        selected_row = self.table_activity.currentRow()
+
         self.label_status.setText(self.app_logic.check_bot_status().upper())
-        if self.app_logic.check_bot_status() == 'online': self.label_status.setStyleSheet("color: green;")
-        else: self.label_status.setStyleSheet("color: red;")
+        if self.app_logic.check_bot_status() == 'online':
+            self.label_status.setStyleSheet("color: green;")
+        else:
+            self.label_status.setStyleSheet("color: red;")
         
         self.table_activity.setRowCount(0)
         for guild in bot.bot.guilds:
@@ -232,13 +238,50 @@ class MainWindow(QtWidgets.QMainWindow):
             now_playing_item.setFlags(now_playing_item.flags() & ~QtCore.Qt.ItemIsEditable)
             self.table_activity.setItem(row, 2, now_playing_item)
 
+        # Restore selection if possible
+        row_count = self.table_activity.rowCount()
+        if 0 <= selected_row < row_count:
+            self.table_activity.selectRow(selected_row)
+        elif row_count > 0:
+            self.table_activity.selectRow(0)
+
     def show_activity_context_menu(self, pos):
         menu = QtWidgets.QMenu(self)
         action_refresh = menu.addAction("Refresh Table Info")
         menu.addSeparator()
         action_copy_id = menu.addAction("Copy Guild ID")
+        
+        row = self.table_activity.currentRow()
+        action_pause_song = menu.addAction("Pause Song")
+        action_play_song = menu.addAction("Resume Song")
         action_skip_song = menu.addAction("Skip Song")
-        action_disconnect = menu.addAction("Disconnect from Guild")
+        action_disconnect = menu.addAction("Disconnect")
+
+        action_pause_song.setVisible(False)
+        action_play_song.setVisible(False)
+        action_skip_song.setVisible(False)
+        action_disconnect.setVisible(False)
+
+        if row >= 0 and row < len(bot.bot.guilds):
+            guild = bot.bot.guilds[row]
+            try:
+                # Use the async song_status utility to get the status
+                fut = asyncio.run_coroutine_threadsafe(
+                    bot.song_status(guild.id), self.app_logic.loop
+                )
+                status = fut.result(timeout=3)
+            except Exception as e:
+                self.app_logic.logger.error(f"Failed to get song status for {guild.name}: {e}")
+                status = "Stopped"
+            if status == "Playing":
+                action_pause_song.setVisible(True)
+                action_skip_song.setVisible(True)
+                action_disconnect.setVisible(True)
+            elif status == "Paused":
+                action_play_song.setVisible(True)
+                action_skip_song.setVisible(True)
+                action_disconnect.setVisible(True)
+                
         action = menu.exec_(self.table_activity.viewport().mapToGlobal(pos))
 
         # Refresh the activity table
@@ -288,6 +331,42 @@ class MainWindow(QtWidgets.QMainWindow):
                 threading.Thread(target=skip, daemon=True).start()
             else:
                 self.app_logic.logger.warning("No guild selected to skip song.")
+                
+        # Pause song in the selected guild
+        elif action == action_pause_song:
+            row = self.table_activity.currentRow()
+            if row >= 0 and row < len(bot.bot.guilds):
+                guild = bot.bot.guilds[row]
+                def pause():
+                    fut = asyncio.run_coroutine_threadsafe(
+                        bot.pause_song(guild.id), self.app_logic.loop
+                    )
+                    try:
+                        fut.result(timeout=5)
+                        self.app_logic.logger.info(f"Pause command sent for guild: {guild.name}")
+                    except Exception as e:
+                        self.app_logic.logger.error(f"Failed to pause song in {guild.name}: {e}")
+                threading.Thread(target=pause, daemon=True).start()
+            else:
+                self.app_logic.logger.warning("No guild selected to pause song.")
+        
+        # Resume song in the selected guild
+        elif action == action_play_song:
+            row = self.table_activity.currentRow()
+            if row >= 0 and row < len(bot.bot.guilds):
+                guild = bot.bot.guilds[row]
+                def resume():
+                    fut = asyncio.run_coroutine_threadsafe(
+                        bot.resume_song(guild.id), self.app_logic.loop
+                    )
+                    try:
+                        fut.result(timeout=5)
+                        self.app_logic.logger.info(f"Resume command sent for guild: {guild.name}")
+                    except Exception as e:
+                        self.app_logic.logger.error(f"Failed to resume song in {guild.name}: {e}")
+                threading.Thread(target=resume, daemon=True).start()
+            else:
+                self.app_logic.logger.warning("No guild selected to resume song.")
         
     def update_stats(self):
         if self.app_logic.check_bot_status() != 'online': return
