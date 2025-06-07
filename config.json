@@ -1,6 +1,7 @@
 {
     "default_footer": "Pishki s oriz",
     "delete_delay": 3,
+    "debug": false,
     "logging": {
         "file": "leatest.log",
         "datefmt": "%Y-%m-%d %H:%M:%S",
@@ -8,5 +9,7 @@
         "backup_count": 5,
         "asctime_log_color": "thin_white"
     },
-    "debug": false
+    "GUI": {
+        "table_refresh_interval": 1000
+    }
 }

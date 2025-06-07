@@ -83,6 +83,24 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QLabel" name="label_active">
+           <property name="font">
+            <font>
+             <family>Consolas</family>
+             <pointsize>9</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>ACTIVE</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -111,19 +129,26 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="stop_btn">
-         <property name="font">
-          <font>
-           <family>Consolas</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="topMargin">
+          <number>0</number>
          </property>
-         <property name="text">
-          <string>Shutdown Bot</string>
-         </property>
-        </widget>
+         <item>
+          <widget class="QPushButton" name="stop_btn">
+           <property name="font">
+            <font>
+             <family>Consolas</family>
+             <pointsize>9</pointsize>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Shutdown Bot</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

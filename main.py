@@ -142,7 +142,6 @@ class MusicBotApp:
             gc.collect()
             self.logger.info("Event loop closed.")
 
-    
     def check_bot_status(self) -> str:
         if bot.bot.is_closed(): return "offline"
         elif not bot.is_ready: return "starting"
@@ -181,7 +180,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Refresh activity table
         self.activity_timer = QtCore.QTimer(self)
         self.activity_timer.timeout.connect(self.refresh_activity_table)
-        self.activity_timer.start(3000)
+        self.activity_timer.start(self.app_logic.conf['GUI']['table_refresh_interval'])
 
         # Add right-click context menu
         self.table_activity.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -197,6 +196,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.label_status.setStyleSheet("color: green;")
         else:
             self.label_status.setStyleSheet("color: red;")
+        self.label_active.setText(f"ACTIVE: {len(bot.bot.voice_clients)}")
         
         self.table_activity.setRowCount(0)
         for guild in bot.bot.guilds:
@@ -211,7 +211,19 @@ class MainWindow(QtWidgets.QMainWindow):
             # Voice Status
             voice_client = next((vc for vc in bot.bot.voice_clients if vc.guild.id == guild.id and vc.is_connected()), None)
             if voice_client and voice_client.channel:
-                status_text = f"Active ({voice_client.channel.name})"
+                try:
+                    fut = asyncio.run_coroutine_threadsafe(
+                        bot.song_status(guild.id), self.app_logic.loop
+                    )
+                    playback_status = fut.result(timeout=2)
+                except Exception as e:
+                    self.app_logic.logger.error(f"Failed to get song status for {guild.name}: {e}")
+                    playback_status = "Unknown"
+                    
+                if playback_status == "Paused":
+                    status_text = f"Paused ({voice_client.channel.name})"
+                else:
+                    status_text = f"Active ({voice_client.channel.name})"
             else:
                 status_text = "Inactive"
             status_item = QtWidgets.QTableWidgetItem(status_text)

@@ -322,6 +322,12 @@ async def song_status(guild_id: int):
             return "Paused"
     return "Stopped"
 
+def get_guild_icon(guild_id: int):
+    guild = bot.get_guild(guild_id)
+    if guild and guild.icon:
+        return guild.icon.url
+    return None
+
 async def run_bot(loop):
     asyncio.set_event_loop(loop)
     await bot.start(TOKEN)
