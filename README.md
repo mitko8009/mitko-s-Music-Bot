@@ -17,7 +17,7 @@ Mitko's Music Bot is a Discord bot designed for seamless music playback in your 
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/mitkos-Music-Bot.git
+    git clone https://github.com/mitko8009/mitkos-Music-Bot.git
     ```
 2. Install the required dependencies:
     ```bash
