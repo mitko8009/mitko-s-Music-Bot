@@ -151,7 +151,8 @@ async def stop(interaction: discord.Interaction):
 @bot.tree.command(name="play", description="Play a song or add it to the queue.")
 @app_commands.describe(song_query="Search query")
 async def play(interaction: discord.Interaction, song_query: str):
-    await interaction.response.defer(ephemeral=True)
+    if not interaction.response.is_done():
+        await interaction.response.defer(ephemeral=True)
 
     if not interaction.user.voice:
         await interaction.followup.send(embed=embeds.generic_embed(
@@ -322,12 +323,7 @@ async def song_status(guild_id: int):
             return "Paused"
     return "Stopped"
 
-def get_guild_icon(guild_id: int):
-    guild = bot.get_guild(guild_id)
-    if guild and guild.icon:
-        return guild.icon.url
-    return None
-
+# Run the bot
 async def run_bot(loop):
     asyncio.set_event_loop(loop)
     await bot.start(TOKEN)

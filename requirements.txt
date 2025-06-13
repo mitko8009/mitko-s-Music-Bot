@@ -1,0 +1,6 @@
+colorlog==6.9.0
+discord.py==2.4.0
+PyQt5==5.15.11
+PyQt5_sip==12.15.0
+python-dotenv==1.1.0
+yt_dlp==2025.6.9

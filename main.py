@@ -287,10 +287,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 status = "Stopped"
             if status == "Playing":
                 action_pause_song.setVisible(True)
-                action_skip_song.setVisible(True)
-                action_disconnect.setVisible(True)
             elif status == "Paused":
                 action_play_song.setVisible(True)
+                
+            if status == "Playing" or status == "Paused":
                 action_skip_song.setVisible(True)
                 action_disconnect.setVisible(True)
                 
